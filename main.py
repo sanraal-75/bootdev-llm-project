@@ -1,6 +1,7 @@
 import os
 import argparse
 from google import genai
+from google.genai import types
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -14,10 +15,12 @@ parser = argparse.ArgumentParser(description="Chatbot")
 parser.add_argument("user_prompt", type=str, help="User prompt")
 args = parser.parse_args()
 
+messages = [types.Content(role="user", parts=[types.Part(text=args.user_prompt)])]
+
 #Import the genai library and use the API key to create a new instance of a Gemini client:
 client = genai.Client(api_key=api_key)
 
-response_object = client.models.generate_content(model='gemini-2.5-flash',contents=args.user_prompt)
+response_object = client.models.generate_content(model='gemini-2.5-flash',contents=messages)
 
 if response_object.usage_metadata == None:
     raise Exception("Usage metrics returned None!")
