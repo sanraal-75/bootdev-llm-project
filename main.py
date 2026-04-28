@@ -13,4 +13,11 @@ client = genai.Client(api_key=api_key)
 
 response_object = client.models.generate_content(model='gemini-2.5-flash',contents="Why is Boot.dev such a great place to learn backend development? Use one paragraph maximum.")
 
+if response_object.usage_metadata == None:
+    raise Exception("Usage metrics returned None!")
+
+#Print token usage to the screen
+print(f"Prompt tokens: {response_object.usage_metadata.prompt_token_count}")
+print(f"Response tokens: {response_object.usage_metadata.candidates_token_count}")
+
 print(response_object.text)
