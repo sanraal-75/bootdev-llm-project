@@ -1,4 +1,5 @@
 import os
+import argparse
 from google import genai
 from dotenv import load_dotenv
 
@@ -8,10 +9,15 @@ api_key = os.environ.get("GEMINI_API_KEY")
 if api_key == None: 
     raise Exception("API Key not found!")
 
+#parse CLI arguments using builtin
+parser = argparse.ArgumentParser(description="Chatbot")
+parser.add_argument("user_prompt", type=str, help="User prompt")
+args = parser.parse_args()
+
 #Import the genai library and use the API key to create a new instance of a Gemini client:
 client = genai.Client(api_key=api_key)
 
-response_object = client.models.generate_content(model='gemini-2.5-flash',contents="Why is Boot.dev such a great place to learn backend development? Use one paragraph maximum.")
+response_object = client.models.generate_content(model='gemini-2.5-flash',contents=args.user_prompt)
 
 if response_object.usage_metadata == None:
     raise Exception("Usage metrics returned None!")
