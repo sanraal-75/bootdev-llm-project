@@ -1,6 +1,27 @@
 import os
 
-def write_file(working_directory, file_path, content):
+from google import genai
+from google.genai import types
+
+schema_write_file_content = types.FunctionDeclaration(
+    name="write_file_content",
+    description="Overwrite the specified file with content supplied",
+    parameters=types.Schema(
+        type=types.Type.OBJECT,
+        properties={
+            "file_path": types.Schema(
+                type=types.Type.STRING,
+                description="Relative path to the file",
+            ),
+            "content": types.Schema(
+                type=types.Type.STRING,
+                description="Content to write to the file",
+            ),
+        },
+    ),
+)
+
+def write_file_content(working_directory, file_path, content):
     try:
         abs_working_dir = os.path.abspath(working_directory)
         abs_file_path = os.path.normpath(os.path.join(abs_working_dir, file_path)) # normalise and join paths to get the absolute file path
