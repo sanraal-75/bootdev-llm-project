@@ -3,11 +3,13 @@ import argparse
 from google import genai
 from google.genai import types
 from dotenv import load_dotenv
+from prompts import system_prompt
+from functions.call_function import available_functions
 
 load_dotenv()
 api_key = os.environ.get("GEMINI_API_KEY")
 
-if api_key == None: 
+if api_key is None: 
     raise Exception("API Key not found!")
 
 #parse CLI arguments using builtin
@@ -21,9 +23,14 @@ messages = [types.Content(role="user", parts=[types.Part(text=args.user_prompt)]
 #Import the genai library and use the API key to create a new instance of a Gemini client:
 client = genai.Client(api_key=api_key)
 
-response_object = client.models.generate_content(model='gemini-2.5-flash',contents=messages)
+response_object = client.models.generate_content(
+    model='gemini-2.5-flash',
+    contents=messages,
+    config=types.GenerateContentConfig(
+        tools=[available_functions],
+        system_instruction=system_prompt))
 
-if response_object.usage_metadata == None:
+if response_object.usage_metadata is None:
     raise Exception("Usage metrics returned None!")
 
 #Print token usage to the screen
@@ -32,4 +39,9 @@ if args.verbose:
     print(f"Prompt tokens: {response_object.usage_metadata.prompt_token_count}")
     print(f"Response tokens: {response_object.usage_metadata.candidates_token_count}")
 
-print(response_object.text)
+if response_object.function_calls is None:
+    print(response_object.text)
+
+else:
+    for function_call in response_object.function_calls:
+        print(f"Calling function: {function_call.name}({function_call.args})")
